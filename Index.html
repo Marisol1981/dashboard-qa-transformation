@@ -1,0 +1,1829 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Transformación QA</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            font-size: 1rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            background: white;
+            cursor: pointer;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-secondary.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        .kpi-label {
+            color: #6b7280;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .kpi-icon {
+            font-size: 2.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        thead {
+            background: #f9fafb;
+        }
+
+        th {
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-completa {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-parcial {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-sin {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .track-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .track-stat {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .track-stat:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .track-stat-value {
+            font-size: 1.875rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .track-stat-label {
+            font-size: 0.875rem;
+            color: #4b5563;
+        }
+
+        .track-stat-percent {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+
+        .alert {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .alert-title {
+            font-weight: 600;
+            color: #991b1b;
+            margin-bottom: 0.25rem;
+        }
+
+        .alert-text {
+            color: #b91c1c;
+            font-size: 0.875rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 0.75rem;
+            max-width: 900px;
+            width: 100%;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            background: #3b82f6;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem 0.75rem 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-weight: 600;
+            font-size: 1.125rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.25rem;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            background: #f9fafb;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 0 0 0.75rem 0.75rem;
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .project-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            transition: all 0.2s;
+        }
+
+        .project-card:hover {
+            background: #f9fafb;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .project-client {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .project-name {
+            font-size: 0.75rem;
+            color: #6b7280;
+            line-height: 1.3;
+            margin-bottom: 0.75rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .project-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+        }
+
+        .project-leader {
+            color: #374151;
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1;
+            margin-right: 0.5rem;
+        }
+
+        .project-tool {
+            background: #f3f4f6;
+            color: #6b7280;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            flex-shrink: 0;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 1rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #10b981;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .badge-counter {
+            background: #ef4444;
+            color: white;
+            padding: 0.125rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
+        }
+
+        .overflow-x-auto {
+            overflow-x: auto;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.875rem;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .kpi-value {
+                font-size: 2rem;
+            }
+
+            table {
+                font-size: 0.75rem;
+            }
+
+            th, td {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Dashboard Interactivo - Transformación QA</h1>
+            <p class="subtitle">Análisis dinámico de implementación y adopción por Track </p>
+        </header>
+
+        <!-- Filtros -->
+        <div class="card">
+            <h2 style="margin-bottom: 1rem; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                🔍 Filtros
+            </h2>
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label>Cliente</label>
+                    <select id="filterCliente">
+                        <option value="todos">Todos</option>
+                    </select>
+                    <!-- Modal Formulario Edición Proyecto -->
+        <div id="modalEdicion" class="modal">
+            <div class="modal-content" style="max-width: 700px;">
+                <div class="modal-header" style="background: #f59e0b;">
+                    <h3 class="modal-title">✏️ Editar Proyecto</h3>
+                    <button class="modal-close" onclick="cerrarFormularioEdicion()">×</button>
+                </div>
+                <div class="modal-body" style="max-height: 70vh;">
+                    <!-- Selección de Proyecto -->
+                    <div style="margin-bottom: 1.5rem; padding: 1rem; background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 0.5rem;">
+                        <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">
+                            Seleccionar Proyecto a Editar <span style="color: #ef4444;">*</span>
+                        </label>
+                        <select id="selectProyectoEditar" onchange="cargarDatosProyecto()" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; background: white;">
+                            <option value="">Seleccionar proyecto...</option>
+                        </select>
+                    </div>
+
+                    <form id="formEdicion">
+                        <!-- Información Básica (Solo Lectura) -->
+                        <div style="margin-bottom: 1rem; padding: 1rem; background: #f9fafb; border-radius: 0.5rem;">
+                            <h4 style="font-size: 0.875rem; font-weight: 600; color: #6b7280; margin-bottom: 0.75rem;">Información del Proyecto (No editable)</h4>
+                            <div style="margin-bottom: 0.5rem;">
+                                <span style="font-size: 0.75rem; color: #6b7280;">Cliente:</span>
+                                <span id="editCliente" style="font-size: 0.875rem; color: #374151; font-weight: 600; margin-left: 0.5rem;">-</span>
+                            </div>
+                            <div>
+                                <span style="font-size: 0.75rem; color: #6b7280;">Proyecto:</span>
+                                <span id="editProyecto" style="font-size: 0.875rem; color: #374151; font-weight: 600; margin-left: 0.5rem;">-</span>
+                            </div>
+                        </div>
+
+                        <!-- Líder -->
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">
+                                Líder
+                            </label>
+                            <select id="editLider" onchange="toggleOtroLiderEdit()" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; background: white;">
+                                <option value="Ariana Infante">Ariana Infante</option>
+                                <option value="Pablo Lagos">Pablo Lagos</option>
+                                <option value="Camilo Villavicencio">Camilo Villavicencio</option>
+                                <option value="Luis Silva L.">Luis Silva L.</option>
+                                <option value="David Lorca">David Lorca</option>
+                                <option value="Denisse Basualto">Denisse Basualto</option>
+                                <option value="Gerardo Reyes">Gerardo Reyes</option>
+                                <option value="Hector Mancilla">Hector Mancilla</option>
+                                <option value="Marcia Donoso">Marcia Donoso</option>
+                                <option value="Alvaro Sepulveda">Alvaro Sepulveda</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+
+                        <!-- Campo Otro Líder Edit (oculto por defecto) -->
+                        <div id="divOtroLiderEdit" style="margin-bottom: 1rem; display: none;">
+                            <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">
+                                Especificar Líder
+                            </label>
+                            <input type="text" id="editOtroLider" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem;">
+                        </div>
+
+                        <!-- Tracks -->
+                        <div style="border-top: 2px solid #e5e7eb; padding-top: 1rem; margin-top: 1rem; margin-bottom: 1rem;">
+                            <h4 style="font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 1rem;">Tracks de Adopción</h4>
+                            
+                            <div style="margin-bottom: 0.75rem;">
+                                <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">
+                                    Modelo Operativo QA
+                                </label>
+                                <select id="editAdopcionMO" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; background: white;">
+                                    <option value="Sin Adopción">Sin Adopción</option>
+                                    <option value="Parcial">Parcial</option>
+                                    <option value="Completa">Completa</option>
+                                </select>
+                            </div>
+
+                            <div style="margin-bottom: 0.75rem;">
+                                <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">
+                                    Automatización
+                                </label>
+                                <select id="editAdopcionAuto" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; background: white;">
+                                    <option value="Sin Adopción">Sin Adopción</option>
+                                    <option value="Parcial">Parcial</option>
+                                    <option value="Completa">Completa</option>
+                                </select>
+                            </div>
+
+                            <div style="margin-bottom: 0.75rem;">
+                                <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">
+                                    Performance Testing
+                                </label>
+                                <select id="editAdopcionPerf" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; background: white;">
+                                    <option value="Sin Adopción">Sin Adopción</option>
+                                    <option value="Parcial">Parcial</option>
+                                    <option value="Completa">Completa</option>
+                                </select>
+                            </div>
+
+                            <div style="margin-bottom: 0.75rem;">
+                                <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">
+                                    DevOps
+                                </label>
+                                <select id="editAdopcionDevOps" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; background: white;">
+                                    <option value="Sin Adopción">Sin Adopción</option>
+                                    <option value="Parcial">Parcial</option>
+                                    <option value="Completa">Completa</option>
+                                </select>
+                            </div>
+
+                            <div style="margin-bottom: 0.75rem;">
+                                <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">
+                                    TDM (Test Data Management)
+                                </label>
+                                <select id="editAdopcionTDM" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; background: white;">
+                                    <option value="Sin Adopción">Sin Adopción</option>
+                                    <option value="Parcial">Parcial</option>
+                                    <option value="Completa">Completa</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Herramienta -->
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">
+                                Herramienta
+                            </label>
+                            <select id="editHerramienta" onchange="toggleOtraHerramientaEdit()" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; background: white;">
+                                <option value="Jira">Jira</option>
+                                <option value="Xray">Xray</option>
+                                <option value="QTest">QTest</option>
+                                <option value="Azure">Azure</option>
+                                <option value="Octane">Octane</option>
+                                <option value="Zephyr">Zephyr</option>
+                                <option value="Otra">Otra</option>
+                            </select>
+                        </div>
+
+                        <div id="divOtraHerramientaEdit" style="margin-bottom: 1rem; display: none;">
+                            <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">
+                                Especificar Herramienta
+                            </label>
+                            <input type="text" id="editOtraHerramienta" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem;">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <span style="font-size: 0.75rem; color: #6b7280;">
+                        Editando proyecto existente
+                    </span>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-secondary" onclick="cerrarFormularioEdicion()">Cancelar</button>
+                        <button class="btn btn-primary" style="background: #f59e0b;" onclick="guardarEdicionProyecto()">💾 Guardar Cambios</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Formulario Eliminación Proyecto -->
+        <div id="modalEliminacion" class="modal">
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header" style="background: #ef4444;">
+                    <h3 class="modal-title">🗑️ Eliminar Proyecto</h3>
+                    <button class="modal-close" onclick="cerrarFormularioEliminacion()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div style="margin-bottom: 1.5rem; padding: 1rem; background: #fef2f2; border-left: 4px solid #ef4444; border-radius: 0.5rem;">
+                        <p style="font-size: 0.875rem; color: #991b1b; margin-bottom: 1rem;">
+                            ⚠️ <strong>Advertencia:</strong> Esta acción no se puede deshacer. El proyecto será eliminado permanentemente.
+                        </p>
+                        <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">
+                            Seleccionar Proyecto a Eliminar <span style="color: #ef4444;">*</span>
+                        </label>
+                        <select id="selectProyectoEliminar" onchange="mostrarDetallesEliminacion()" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; background: white;">
+                            <option value="">Seleccionar proyecto...</option>
+                        </select>
+                    </div>
+
+                    <!-- Detalles del Proyecto a Eliminar -->
+                    <div id="detallesEliminacion" style="display: none; padding: 1rem; background: #f9fafb; border-radius: 0.5rem; border: 1px solid #e5e7eb;">
+                        <h4 style="font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.75rem;">Detalles del Proyecto</h4>
+                        <div style="margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.75rem; color: #6b7280;">Cliente:</span>
+                            <span id="delCliente" style="font-size: 0.875rem; color: #374151; font-weight: 600; margin-left: 0.5rem;">-</span>
+                        </div>
+                        <div style="margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.75rem; color: #6b7280;">Proyecto:</span>
+                            <span id="delProyecto" style="font-size: 0.875rem; color: #374151; font-weight: 600; margin-left: 0.5rem;">-</span>
+                        </div>
+                        <div>
+                            <span style="font-size: 0.75rem; color: #6b7280;">Líder:</span>
+                            <span id="delLider" style="font-size: 0.875rem; color: #374151; font-weight: 600; margin-left: 0.5rem;">-</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <span style="font-size: 0.75rem; color: #6b7280;">
+                        Esta acción es permanente
+                    </span>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-secondary" onclick="cerrarFormularioEliminacion()">Cancelar</button>
+                        <button id="btnConfirmarEliminar" class="btn btn-primary" style="background: #ef4444;" onclick="confirmarEliminacion()" disabled>
+                            🗑️ Confirmar Eliminación
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+                <div class="filter-group">
+                    <label>Líder de Servicio</label>
+                    <select id="filterLider">
+                        <option value="todos">Todos</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Proyecto</label>
+                    <select id="filterProyecto">
+                        <option value="todos">Todos los proyectos</option>
+                    </select>
+                </div>
+            </div>
+            <button id="btnLimpiarFiltros" class="btn btn-primary" style="margin-top: 1rem; display: none;">
+                Limpiar Filtros
+            </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="card">
+            <div class="tabs">
+                <button class="btn btn-secondary active" data-view="general">Vista General</button>
+                <button class="btn btn-secondary" data-view="tabla">Tabla Detallada</button>
+                <button class="btn btn-secondary" data-view="tracks">Análisis por Track</button>
+                <button class="btn btn-secondary" data-view="sinImplementacion">
+                    Sin Implementación
+                    <span id="badgeCounter" class="badge-counter hidden">0</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Botones de Gestión de Proyectos -->
+        <div class="card">
+            <h2 style="margin-bottom: 1rem; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                ⚙️ Gestión de Proyectos
+            </h2>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="abrirFormularioProyecto()" style="flex: 1; min-width: 200px;">
+                    ➕ Crear Nuevo Proyecto
+                </button>
+                <button class="btn btn-secondary" onclick="abrirFormularioEdicion()" style="flex: 1; min-width: 200px; background: #f59e0b; color: white;">
+                    ✏️ Editar Proyecto
+                </button>
+                <button class="btn btn-secondary" onclick="abrirFormularioEliminacion()" style="flex: 1; min-width: 200px; background: #ef4444; color: white;">
+                    🗑️ Eliminar Proyecto
+                </button>
+            </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="kpis">
+            <div class="kpi-card">
+                <div>
+                    <div class="kpi-value" style="color: #3b82f6;" id="kpiProyectos">26</div>
+                    <div class="kpi-label">Proyectos</div>
+                </div>
+                <div class="kpi-icon">💼</div>
+            </div>
+            <div class="kpi-card">
+                <div>
+                    <div class="kpi-value" style="color: #10b981;" id="kpiClientes">17</div>
+                    <div class="kpi-label">Clientes Únicos</div>
+                </div>
+                <div class="kpi-icon">👥</div>
+            </div>
+            <div class="kpi-card">
+                <div>
+                    <div class="kpi-value" style="color: #8b5cf6;" id="kpiLideres">9</div>
+                    <div class="kpi-label">Líderes de Servicio</div>
+                </div>
+                <div class="kpi-icon">📈</div>
+            </div>
+        </div>
+
+        <!-- Vista General -->
+        <div id="vistaGeneral" class="view-content">
+            <div class="card">
+                <h2 style="margin-bottom: 1rem; font-size: 1.25rem;">Estado de Adopción por Track</h2>
+                <div class="chart-container">
+                    <canvas id="chartBarras"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 style="margin-bottom: 1rem; font-size: 1.25rem;">Distribución de Herramientas de Gestión</h2>
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="chartHerramientas"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vista Tabla -->
+        <div id="vistaTabla" class="view-content hidden">
+            <div class="card">
+                <h2 style="margin-bottom: 1rem; font-size: 1.25rem;">Detalle Completo de Proyectos</h2>
+                <div class="overflow-x-auto">
+                    <table id="tablaProyectos">
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Proyecto</th>
+                                <th>Líder</th>
+                                <th style="text-align: center;">Modelo Op.</th>
+                                <th style="text-align: center;">Auto</th>
+                                <th style="text-align: center;">Perf</th>
+                                <th style="text-align: center;">DevOps</th>
+                                <th style="text-align: center;">TDM</th>
+                                <th>Herramienta</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaProyectosBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vista Tracks -->
+        <div id="vistaTracks" class="view-content hidden">
+            <div id="tracksContainer"></div>
+        </div>
+
+        <!-- Vista Sin Implementación -->
+        <div id="vistaSinImplementacion" class="view-content hidden">
+            <div class="card">
+                <h2 style="margin-bottom: 1rem; font-size: 1.25rem;">Comparativa: Proyectos con y sin Implementación</h2>
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="chartComparativa"></canvas>
+                </div>
+            </div>
+
+            <div id="alertSinImpl" class="alert hidden">
+                <div class="alert-title" id="alertTitle">⚠️ Atención</div>
+                <div class="alert-text" id="alertText"></div>
+            </div>
+
+            <div class="card">
+                <h2 style="margin-bottom: 1rem; font-size: 1.25rem;">
+                    Proyectos sin Ninguna Implementación
+                    <span style="color: #ef4444;" id="countSinImpl">(0)</span>
+                </h2>
+                <div id="tablaSinImplContainer"></div>
+            </div>
+
+            <div id="statsLideresContainer" class="card hidden">
+                <h2 style="margin-bottom: 1rem; font-size: 1.25rem;">Distribución por Líder de Servicio</h2>
+                <div id="statsLideresGrid" class="track-grid"></div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="modalTitle"></h3>
+                    <button class="modal-close" onclick="closeModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div id="modalProyectos" class="project-grid"></div>
+                </div>
+                <div class="modal-footer">
+                    <span style="font-size: 0.75rem; color: #6b7280;">
+                        Total: <strong id="modalCount">0</strong> proyecto(s)
+                    </span>
+                    <button class="btn btn-primary" onclick="closeModal()">Cerrar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Formulario Nuevo Proyecto -->
+        <div id="modalFormulario" class="modal">
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h3 class="modal-title">➕ Crear Nuevo Proyecto</h3>
+                    <button class="modal-close" onclick="cerrarFormularioProyecto()">×</button>
+                </div>
+                <div class="modal-body" style="max-height: 70vh;">
+                    <form id="formProyecto">
+                        <!-- Información Básica -->
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">
+                                Cliente <span style="color: #ef4444;">*</span>
+                            </label>
+                            <input type="text" id="inputCliente" required style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem;">
+                        </div>
+
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">
+                                Proyecto <span style="color: #ef4444;">*</span>
+                            </label>
+                            <input type="text" id="inputProyecto" required style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem;">
+                        </div>
+
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">
+                                Líder <span style="color: #ef4444;">*</span>
+                            </label>
+                            <select id="inputLider" required onchange="toggleOtroLider()" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; background: white;">
+                                <option value="">Seleccionar...</option>
+                                <option value="Ariana Infante">Ariana Infante</option>
+                                <option value="Pablo Lagos">Pablo Lagos</option>
+                                <option value="Camilo Villavicencio">Camilo Villavicencio</option>
+                                <option value="Luis Silva L.">Luis Silva L.</option>
+                                <option value="David Lorca">David Lorca</option>
+                                <option value="Denisse Basualto">Denisse Basualto</option>
+                                <option value="Gerardo Reyes">Gerardo Reyes</option>
+                                <option value="Hector Mancilla">Hector Mancilla</option>
+                                <option value="Marcia Donoso">Marcia Donoso</option>
+                                <option value="Alvaro Sepulveda">Alvaro Sepulveda</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+
+                        <!-- Campo Otro Líder (oculto por defecto) -->
+                        <div id="divOtroLider" style="margin-bottom: 1rem; display: none;">
+                            <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">
+                                Especificar Líder <span style="color: #ef4444;">*</span>
+                            </label>
+                            <input type="text" id="inputOtroLider" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem;">
+                        </div>
+
+                        <!-- Tracks -->
+                        <div style="border-top: 2px solid #e5e7eb; padding-top: 1rem; margin-top: 1rem; margin-bottom: 1rem;">
+                            <h4 style="font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 1rem;">Tracks de Adopción</h4>
+                            
+                            <!-- Modelo Op. -->
+                            <div style="margin-bottom: 0.75rem;">
+                                <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">
+                                    Modelo Operativo QA
+                                </label>
+                                <select id="inputAdopcionMO" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; background: white;">
+                                    <option value="Sin Adopción">Sin Adopción</option>
+                                    <option value="Parcial">Parcial</option>
+                                    <option value="Completa">Completa</option>
+                                </select>
+                            </div>
+
+                            <!-- Auto -->
+                            <div style="margin-bottom: 0.75rem;">
+                                <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">
+                                    Automatización
+                                </label>
+                                <select id="inputAdopcionAuto" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; background: white;">
+                                    <option value="Sin Adopción">Sin Adopción</option>
+                                    <option value="Parcial">Parcial</option>
+                                    <option value="Completa">Completa</option>
+                                </select>
+                            </div>
+
+                            <!-- Perf -->
+                            <div style="margin-bottom: 0.75rem;">
+                                <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">
+                                    Performance Testing
+                                </label>
+                                <select id="inputAdopcionPerf" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; background: white;">
+                                    <option value="Sin Adopción">Sin Adopción</option>
+                                    <option value="Parcial">Parcial</option>
+                                    <option value="Completa">Completa</option>
+                                </select>
+                            </div>
+
+                            <!-- DevOps -->
+                            <div style="margin-bottom: 0.75rem;">
+                                <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">
+                                    DevOps
+                                </label>
+                                <select id="inputAdopcionDevOps" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; background: white;">
+                                    <option value="Sin Adopción">Sin Adopción</option>
+                                    <option value="Parcial">Parcial</option>
+                                    <option value="Completa">Completa</option>
+                                </select>
+                            </div>
+
+                            <!-- TDM -->
+                            <div style="margin-bottom: 0.75rem;">
+                                <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">
+                                    TDM (Test Data Management)
+                                </label>
+                                <select id="inputAdopcionTDM" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; background: white;">
+                                    <option value="Sin Adopción">Sin Adopción</option>
+                                    <option value="Parcial">Parcial</option>
+                                    <option value="Completa">Completa</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Herramienta -->
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">
+                                Herramienta <span style="color: #ef4444;">*</span>
+                            </label>
+                            <select id="inputHerramienta" required onchange="toggleOtraHerramienta()" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; background: white;">
+                                <option value="">Seleccionar...</option>
+                                <option value="Jira">Jira</option>
+                                <option value="Xray">Xray</option>
+                                <option value="QTest">QTest</option>
+                                <option value="Azure">Azure</option>
+                                <option value="Octane">Octane</option>
+                                <option value="Zephyr">Zephyr</option>
+                                <option value="Otra">Otra</option>
+                            </select>
+                        </div>
+
+                        <!-- Campo Otra Herramienta (oculto por defecto) -->
+                        <div id="divOtraHerramienta" style="margin-bottom: 1rem; display: none;">
+                            <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">
+                                Especificar Herramienta <span style="color: #ef4444;">*</span>
+                            </label>
+                            <input type="text" id="inputOtraHerramienta" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem;">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <span style="font-size: 0.75rem; color: #6b7280;">
+                        <span style="color: #ef4444;">*</span> Campos obligatorios
+                    </span>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-secondary" onclick="cerrarFormularioProyecto()">Cancelar</button>
+                        <button class="btn btn-primary" onclick="guardarProyecto()">💾 Guardar Proyecto</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const proyectos = [
+            { id: 1, cliente: 'TANNER', proyecto: 'Banco Tanner (CH) - Servicio QA 2025', lider: 'Ariana Infante', modeloOperativo: 'En Implementación', adopcionMO: 'Sin Adopción', automatizacion: 'No Implementado', adopcionAuto: 'Sin Adopción', performance: 'No Implementado', adopcionPerf: 'Sin Adopción', devops: 'No Implementado', adopcionDevOps: 'Sin Adopción', tdm: 'No Implementado', adopcionTDM: 'Sin Adopción', herramienta: 'Azure', servicio: 'Servicio QA' },
+            { id: 2, cliente: 'FALABELLA SEGUROS', proyecto: 'Falabella Seguros (CH) - Staffing 2025', lider: 'Pablo Lagos', modeloOperativo: 'No Implementado', adopcionMO: 'Sin Adopción', automatizacion: 'No Implementado', adopcionAuto: 'Sin Adopción', performance: 'No Implementado', adopcionPerf: 'Sin Adopción', devops: 'No Implementado', adopcionDevOps: 'Sin Adopción', tdm: 'No Implementado', adopcionTDM: 'Sin Adopción', herramienta: 'Zephyr', servicio: '' },
+            { id: 3, cliente: 'FALABELLA SEGUROS', proyecto: 'Falabella Seguros (CH)- Fabrica de desarrollo 2025', lider: 'Pablo Lagos', modeloOperativo: 'No Implementado', adopcionMO: 'Sin Adopción', automatizacion: 'No Implementado', adopcionAuto: 'Sin Adopción', performance: 'No Implementado', adopcionPerf: 'Sin Adopción', devops: 'No Implementado', adopcionDevOps: 'Sin Adopción', tdm: 'No Implementado', adopcionTDM: 'Sin Adopción', herramienta: 'Zephyr', servicio: '' },
+            { id: 4, cliente: 'FALABELLA SEGUROS', proyecto: 'Falabella Seguros (CH)- DEV Salesforce 2025', lider: 'Pablo Lagos', modeloOperativo: 'No Implementado', adopcionMO: 'Sin Adopción', automatizacion: 'No Implementado', adopcionAuto: 'Sin Adopción', performance: 'No Implementado', adopcionPerf: 'Sin Adopción', devops: 'No Implementado', adopcionDevOps: 'Sin Adopción', tdm: 'No Implementado', adopcionTDM: 'Sin Adopción', herramienta: 'Zephyr', servicio: '' },
+            { id: 5, cliente: 'BANCHILE', proyecto: 'Banchile (CH) - Testing Factory 2025', lider: 'Camilo Villavicencio', modeloOperativo: 'Implementado', adopcionMO: 'Completa', automatizacion: 'Implementado', adopcionAuto: 'Sin Adopción', performance: 'No Implementado', adopcionPerf: 'Sin Adopción', devops: 'Implementado', adopcionDevOps: 'Sin Adopción', tdm: 'No Implementado', adopcionTDM: 'Sin Adopción', herramienta: 'Jira', servicio: '' },
+            { id: 6, cliente: 'BANCO CONSORCIO', proyecto: 'Banco Consorcio (CH) - Servicio Banca Empresa', lider: 'Camilo Villavicencio', modeloOperativo: 'Implementado', adopcionMO: 'Completa', automatizacion: 'Implementado', adopcionAuto: 'Completa', performance: 'No Implementado', adopcionPerf: 'Sin Adopción', devops: 'Implementado', adopcionDevOps: 'Completa', tdm: 'No Implementado', adopcionTDM: 'Sin Adopción', herramienta: 'Jira', servicio: '' },
+            { id: 7, cliente: 'BANCO DE CHILE', proyecto: 'Banco de Chile (CH)- Servicio QA Swift ISO 20022', lider: 'Luis Silva L.', modeloOperativo: 'Implementado', adopcionMO: 'Completa', automatizacion: 'Implementado', adopcionAuto: 'Completa', performance: 'Implementado', adopcionPerf: 'Completa', devops: 'Implementado', adopcionDevOps: 'Completa', tdm: 'No Implementado', adopcionTDM: 'Sin Adopción', herramienta: 'Xray', servicio: 'Servicio QA' },
+            { id: 8, cliente: 'ARAUCO', proyecto: 'ARAUCO (CH) - Servicio de Implementación Tricentis y Automatización', lider: 'David Lorca', modeloOperativo: 'Implementado', adopcionMO: 'Parcial', automatizacion: 'Implementado', adopcionAuto: 'Completa', performance: 'No Implementado', adopcionPerf: 'Sin Adopción', devops: 'Implementado', adopcionDevOps: 'Completa', tdm: 'No Implementado', adopcionTDM: 'Sin Adopción', herramienta: 'Azure', servicio: 'Servicio de Automatización' },
+            { id: 9, cliente: 'VAIN-ARM', proyecto: 'VAIN_ARM (CH) - Servicio QA Transformation - Implementación', lider: 'David Lorca', modeloOperativo: 'Implementado', adopcionMO: 'Completa', automatizacion: 'No Implementado', adopcionAuto: 'Sin Adopción', performance: 'No Implementado', adopcionPerf: 'Sin Adopción', devops: 'Implementado', adopcionDevOps: 'Completa', tdm: 'No Implementado', adopcionTDM: 'Sin Adopción', herramienta: 'Xray', servicio: 'NO Aplica' },
+            { id: 10, cliente: 'TRANSBANK', proyecto: 'Transbank (CH) - Testing Factory 2025', lider: 'Denisse Basualto', modeloOperativo: 'No Implementado', adopcionMO: 'Sin Adopción', automatizacion: 'Implementado', adopcionAuto: 'Completa', performance: 'En Implementación', adopcionPerf: 'Parcial', devops: 'Implementado', adopcionDevOps: 'Completa', tdm: 'No Implementado', adopcionTDM: 'Sin Adopción', herramienta: 'Xray', servicio: '' },
+            { id: 11, cliente: 'BANCO FALABELLA', proyecto: 'Banco Falabella (CH) - Testing Factory 2025', lider: 'Gerardo Reyes', modeloOperativo: 'Implementado', adopcionMO: 'Parcial', automatizacion: 'Implementado', adopcionAuto: 'Completa', performance: 'Implementado', adopcionPerf: 'Completa', devops: 'No Implementado', adopcionDevOps: 'Sin Adopción', tdm: 'No Implementado', adopcionTDM: 'Sin Adopción', herramienta: 'Zephyr', servicio: 'Servicio QA' },
+            { id: 12, cliente: 'FALABELLA FINANCIERO', proyecto: 'Banco Falabella (CH) – Portafolio de Habilitadores 2024', lider: 'Gerardo Reyes', modeloOperativo: 'No Implementado', adopcionMO: 'Sin Adopción', automatizacion: 'No Implementado', adopcionAuto: 'Sin Adopción', performance: 'No Implementado', adopcionPerf: 'Sin Adopción', devops: 'No Implementado', adopcionDevOps: 'Sin Adopción', tdm: 'No Implementado', adopcionTDM: 'Sin Adopción', herramienta: 'Jira', servicio: 'Servicio QA' },
+            { id: 13, cliente: 'FALABELLA FINANCIERO', proyecto: 'Falabella Financiero (CH)- Servicio DevOps', lider: 'Gerardo Reyes', modeloOperativo: 'No Implementado', adopcionMO: 'Sin Adopción', automatizacion: 'No Implementado', adopcionAuto: 'Sin Adopción', performance: 'No Implementado', adopcionPerf: 'Sin Adopción', devops: 'No Implementado', adopcionDevOps: 'Sin Adopción', tdm: 'No Implementado', adopcionTDM: 'Sin Adopción', herramienta: 'Jira', servicio: 'Servicio DEVOPS' },
+            { id: 14, cliente: 'AFP MODELO', proyecto: 'AFP MODELO (CH) - Servicio Reforma pensiones', lider: 'Hector Mancilla', modeloOperativo: 'No Implementado', adopcionMO: 'Sin Adopción', automatizacion: 'No Implementado', adopcionAuto: 'Sin Adopción', performance: 'No Implementado', adopcionPerf: 'Sin Adopción', devops: 'No Implementado', adopcionDevOps: 'Sin Adopción', tdm: 'No Implementado', adopcionTDM: 'Sin Adopción', herramienta: 'Jira', servicio: '' },
+            { id: 15, cliente: 'CAMARA CHILENA', proyecto: 'CÁMARA CHILENA DE LA CONSTRUCCION (CH) - Servicio Securitización', lider: 'Hector Mancilla', modeloOperativo: 'No Implementado', adopcionMO: 'Sin Adopción', automatizacion: 'No Implementado', adopcionAuto: 'Sin Adopción', performance: 'No Implementado', adopcionPerf: 'Sin Adopción', devops: 'No Implementado', adopcionDevOps: 'Sin Adopción', tdm: 'No Implementado', adopcionTDM: 'Sin Adopción', herramienta: 'Jira', servicio: '' },
+            { id: 16, cliente: 'FALABELLA FINANCIERO', proyecto: 'Falabella Financiero (CH)- Capacity de Desarrollo eBook', lider: 'Hector Mancilla', modeloOperativo: 'No Implementado', adopcionMO: 'Sin Adopción', automatizacion: 'No Implementado', adopcionAuto: 'Sin Adopción', performance: 'No Implementado', adopcionPerf: 'Sin Adopción', devops: 'No Implementado', adopcionDevOps: 'Sin Adopción', tdm: 'No Implementado', adopcionTDM: 'Sin Adopción', herramienta: 'Jira', servicio: '' },
+            { id: 17, cliente: 'PUGA', proyecto: 'PUGA, MUJICA ASOCIADOS S.A.(CH)- Servicio Desarrollo conectores', lider: 'Hector Mancilla', modeloOperativo: 'No Implementado', adopcionMO: 'Sin Adopción', automatizacion: 'No Implementado', adopcionAuto: 'Sin Adopción', performance: 'No Implementado', adopcionPerf: 'Sin Adopción', devops: 'No Implementado', adopcionDevOps: 'Sin Adopción', tdm: 'No Implementado', adopcionTDM: 'Sin Adopción', herramienta: 'Jira', servicio: '' },
+            { id: 18, cliente: 'WALMART', proyecto: 'Walmart (CH)- Fábrica de desarrollo WM Power Apps', lider: 'Hector Mancilla', modeloOperativo: 'No Implementado', adopcionMO: 'Sin Adopción', automatizacion: 'No Implementado', adopcionAuto: 'Sin Adopción', performance: 'No Implementado', adopcionPerf: 'Sin Adopción', devops: 'No Implementado', adopcionDevOps: 'Sin Adopción', tdm: 'No Implementado', adopcionTDM: 'Sin Adopción', herramienta: 'Jira', servicio: '' },
+            { id: 19, cliente: 'BCI', proyecto: 'BCI (CH) - Testing Factory 2025', lider: 'Denisse Basualto', modeloOperativo: 'No Implementado', adopcionMO: 'Sin Adopción', automatizacion: 'En Implementación', adopcionAuto: 'Completa', performance: 'No Implementado', adopcionPerf: 'Sin Adopción', devops: 'No Implementado', adopcionDevOps: 'Sin Adopción', tdm: 'Implementado', adopcionTDM: 'Completa', herramienta: 'Octane', servicio: '' },
+            { id: 20, cliente: 'DCV', proyecto: 'DCV (CH) – Servicio capacidades de desarrollo', lider: 'Marcia Donoso', modeloOperativo: 'No Implementado', adopcionMO: 'Sin Adopción', automatizacion: 'No Implementado', adopcionAuto: 'Sin Adopción', performance: 'No Implementado', adopcionPerf: 'Sin Adopción', devops: 'No Implementado', adopcionDevOps: 'Sin Adopción', tdm: 'No Implementado', adopcionTDM: 'Sin Adopción', herramienta: 'Sin definir', servicio: '' },
+            { id: 21, cliente: 'CMF', proyecto: 'COMISION PARA EL MERCADO FINANCIERO (CH) - Licencias GitLab', lider: 'Alvaro Sepulveda', modeloOperativo: 'No Implementado', adopcionMO: 'Sin Adopción', automatizacion: 'No Implementado', adopcionAuto: 'Sin Adopción', performance: 'No Implementado', adopcionPerf: 'Sin Adopción', devops: 'No Implementado', adopcionDevOps: 'Sin Adopción', tdm: 'No Implementado', adopcionTDM: 'Sin Adopción', herramienta: 'Sin definir', servicio: 'Imprementacion Gitlab' },
+            { id: 22, cliente: 'SURA', proyecto: 'SURA (CH) - Servicio de Ingeniero DevOps 2025', lider: 'Alvaro Sepulveda', modeloOperativo: 'No Implementado', adopcionMO: 'Sin Adopción', automatizacion: 'No Implementado', adopcionAuto: 'Sin Adopción', performance: 'No Implementado', adopcionPerf: 'Sin Adopción', devops: 'Implementado', adopcionDevOps: 'Completa', tdm: 'No Implementado', adopcionTDM: 'Sin Adopción', herramienta: 'Sin definir', servicio: 'Servicio ingeniero DevOps' },
+            { id: 23, cliente: 'PARQUE ARAUCO', proyecto: 'PARQUE ARAUCO (CH) - Testing Factory 2025', lider: 'Denisse Basualto', modeloOperativo: 'No Implementado', adopcionMO: 'Sin Adopción', automatizacion: 'No Implementado', adopcionAuto: 'Sin Adopción', performance: 'No Implementado', adopcionPerf: 'Sin Adopción', devops: 'No Implementado', adopcionDevOps: 'Sin Adopción', tdm: 'No Implementado', adopcionTDM: 'Sin Adopción', herramienta: 'Jira', servicio: '' },
+            { id: 24, cliente: 'GOURMET', proyecto: 'Gourmet (CH) -Servicio de testing 2024-2026', lider: 'Pablo Lagos', modeloOperativo: 'No Implementado', adopcionMO: 'Sin Adopción', automatizacion: 'No Implementado', adopcionAuto: 'Sin Adopción', performance: 'No Implementado', adopcionPerf: 'Sin Adopción', devops: 'No Implementado', adopcionDevOps: 'Sin Adopción', tdm: 'No Implementado', adopcionTDM: 'Sin Adopción', herramienta: 'Sin definir', servicio: '' },
+            { id: 25, cliente: 'SMU', proyecto: 'SMU (CH) - Servicio capacidades desarrollo de integraciones', lider: 'Pablo Lagos', modeloOperativo: 'No Implementado', adopcionMO: 'Sin Adopción', automatizacion: 'No Implementado', adopcionAuto: 'Sin Adopción', performance: 'No Implementado', adopcionPerf: 'Sin Adopción', devops: 'No Implementado', adopcionDevOps: 'Sin Adopción', tdm: 'No Implementado', adopcionTDM: 'Sin Adopción', herramienta: 'Sin definir', servicio: 'En Preventa' },
+            { id: 26, cliente: 'BANCO RIPLEY', proyecto: 'Banco Ripley (CH) - Servicio Integral Soporte Tsoft 2025', lider: 'Alvaro Sepulveda', modeloOperativo: 'No Implementado', adopcionMO: 'Sin Adopción', automatizacion: 'No Implementado', adopcionAuto: 'Sin Adopción', performance: 'No Implementado', adopcionPerf: 'Sin Adopción', devops: 'No Implementado', adopcionDevOps: 'Sin Adopción', tdm: 'No Implementado', adopcionTDM: 'Sin Adopción', herramienta: 'Jira', servicio: 'Servicio de soporte integral' }
+        ];
+
+        let proyectosFiltrados = [...proyectos];
+        let chartBarras, chartHerramientas, chartComparativa;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            inicializarFiltros();
+            actualizarDashboard();
+            configurarEventos();
+        });
+
+        function inicializarFiltros() {
+            const clientes = [...new Set(proyectos.map(p => p.cliente))].sort();
+            const lideres = [...new Set(proyectos.map(p => p.lider))].sort();
+
+            const selectCliente = document.getElementById('filterCliente');
+            const selectLider = document.getElementById('filterLider');
+            const selectProyecto = document.getElementById('filterProyecto');
+
+            clientes.forEach(c => {
+                const option = document.createElement('option');
+                option.value = c;
+                option.textContent = c;
+                selectCliente.appendChild(option);
+            });
+
+            lideres.forEach(l => {
+                const option = document.createElement('option');
+                option.value = l;
+                option.textContent = l;
+                selectLider.appendChild(option);
+            });
+
+            proyectos.forEach(p => {
+                const option = document.createElement('option');
+                option.value = p.proyecto;
+                option.textContent = p.proyecto;
+                selectProyecto.appendChild(option);
+            });
+        }
+
+        function configurarEventos() {
+            document.getElementById('filterCliente').addEventListener('change', aplicarFiltros);
+            document.getElementById('filterLider').addEventListener('change', aplicarFiltros);
+            document.getElementById('filterProyecto').addEventListener('change', aplicarFiltros);
+            document.getElementById('btnLimpiarFiltros').addEventListener('click', limpiarFiltros);
+
+            document.querySelectorAll('[data-view]').forEach(btn => {
+                btn.addEventListener('click', (e) => cambiarVista(e.target.dataset.view));
+            });
+
+            document.getElementById('modal').addEventListener('click', (e) => {
+                if (e.target.id === 'modal') closeModal();
+            });
+        }
+
+        function aplicarFiltros() {
+            const cliente = document.getElementById('filterCliente').value;
+            const lider = document.getElementById('filterLider').value;
+            const proyecto = document.getElementById('filterProyecto').value;
+
+            proyectosFiltrados = proyectos.filter(p => {
+                return (cliente === 'todos' || p.cliente === cliente) &&
+                       (lider === 'todos' || p.lider === lider) &&
+                       (proyecto === 'todos' || p.proyecto === proyecto);
+            });
+
+            const hayFiltros = cliente !== 'todos' || lider !== 'todos' || proyecto !== 'todos';
+            document.getElementById('btnLimpiarFiltros').style.display = hayFiltros ? 'block' : 'none';
+
+            actualizarDashboard();
+        }
+
+        function limpiarFiltros() {
+            document.getElementById('filterCliente').value = 'todos';
+            document.getElementById('filterLider').value = 'todos';
+            document.getElementById('filterProyecto').value = 'todos';
+            aplicarFiltros();
+        }
+
+        function actualizarDashboard() {
+            actualizarKPIs();
+            actualizarVistaGeneral();
+            actualizarVistaTabla();
+            actualizarVistaTracks();
+            actualizarVistaSinImplementacion();
+        }
+
+        function actualizarKPIs() {
+            const clientesUnicos = new Set(proyectosFiltrados.map(p => p.cliente)).size;
+            const lideresActivos = new Set(proyectosFiltrados.map(p => p.lider)).size;
+
+            document.getElementById('kpiProyectos').textContent = proyectosFiltrados.length;
+            document.getElementById('kpiClientes').textContent = clientesUnicos;
+            document.getElementById('kpiLideres').textContent = lideresActivos;
+        }
+
+        function calcularEstadisticas() {
+            const proyectosSinImpl = proyectosFiltrados.filter(p =>
+                p.modeloOperativo === 'No Implementado' &&
+                p.automatizacion === 'No Implementado' &&
+                p.performance === 'No Implementado' &&
+                p.devops === 'No Implementado' &&
+                p.tdm === 'No Implementado'
+            );
+
+            return {
+                total: proyectosFiltrados.length,
+                proyectosSinImplementacion: proyectosSinImpl,
+                modeloOperativo: calcularTrack('modeloOperativo', 'adopcionMO'),
+                automatizacion: calcularTrack('automatizacion', 'adopcionAuto'),
+                performance: calcularTrack('performance', 'adopcionPerf'),
+                devops: calcularTrack('devops', 'adopcionDevOps'),
+                tdm: calcularTrack('tdm', 'adopcionTDM')
+            };
+        }
+
+        function calcularTrack(implField, adopField) {
+            return {
+                implementado: proyectosFiltrados.filter(p => p[implField] === 'Implementado').length,
+                enImplementacion: proyectosFiltrados.filter(p => p[implField] === 'En Implementación').length,
+                noImplementado: proyectosFiltrados.filter(p => p[implField] === 'No Implementado').length,
+                adopcionCompleta: proyectosFiltrados.filter(p => p[adopField] === 'Completa').length,
+                adopcionParcial: proyectosFiltrados.filter(p => p[adopField] === 'Parcial').length,
+                sinAdopcion: proyectosFiltrados.filter(p => p[adopField] === 'Sin Adopción').length
+            };
+        }
+
+        function actualizarVistaGeneral() {
+            const stats = calcularEstadisticas();
+
+            const dataBarras = [
+                { name: 'Modelo Operativo', completa: stats.modeloOperativo.adopcionCompleta, parcial: stats.modeloOperativo.adopcionParcial, sinAdopcion: stats.modeloOperativo.sinAdopcion },
+                { name: 'Automatización', completa: stats.automatizacion.adopcionCompleta, parcial: stats.automatizacion.adopcionParcial, sinAdopcion: stats.automatizacion.sinAdopcion },
+                { name: 'Performance', completa: stats.performance.adopcionCompleta, parcial: stats.performance.adopcionParcial, sinAdopcion: stats.performance.sinAdopcion },
+                { name: 'DevOps', completa: stats.devops.adopcionCompleta, parcial: stats.devops.adopcionParcial, sinAdopcion: stats.devops.sinAdopcion },
+                { name: 'TDM', completa: stats.tdm.adopcionCompleta, parcial: stats.tdm.adopcionParcial, sinAdopcion: stats.tdm.sinAdopcion }
+            ];
+
+            if (chartBarras) chartBarras.destroy();
+            const ctxBarras = document.getElementById('chartBarras').getContext('2d');
+            chartBarras = new Chart(ctxBarras, {
+                type: 'bar',
+                data: {
+                    labels: dataBarras.map(d => d.name),
+                    datasets: [
+                        {
+                            label: 'Completa',
+                            data: dataBarras.map(d => d.completa),
+                            backgroundColor: '#10b981'
+                        },
+                        {
+                            label: 'Parcial',
+                            data: dataBarras.map(d => d.parcial),
+                            backgroundColor: '#fbbf24'
+                        },
+                        {
+                            label: 'Sin Adopción',
+                            data: dataBarras.map(d => d.sinAdopcion),
+                            backgroundColor: '#ef4444'
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true }
+                    }
+                }
+            });
+
+            const herramientas = {};
+            proyectosFiltrados.forEach(p => {
+                herramientas[p.herramienta] = (herramientas[p.herramienta] || 0) + 1;
+            });
+            const herramientasData = Object.entries(herramientas).map(([name, value]) => ({ name, value }));
+
+            if (chartHerramientas) chartHerramientas.destroy();
+            const ctxHerramientas = document.getElementById('chartHerramientas').getContext('2d');
+            chartHerramientas = new Chart(ctxHerramientas, {
+                type: 'pie',
+                data: {
+                    labels: herramientasData.map(d => d.name),
+                    datasets: [{
+                        data: herramientasData.map(d => d.value),
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#94a3b8']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right' }
+                    }
+                }
+            });
+        }
+
+        function actualizarVistaTabla() {
+            const tbody = document.getElementById('tablaProyectosBody');
+            tbody.innerHTML = '';
+
+            proyectosFiltrados.forEach((p, i) => {
+                const tr = document.createElement('tr');
+                tr.style.background = i % 2 === 0 ? 'white' : '#f9fafb';
+                tr.innerHTML = `
+                    <td style="font-weight: 600;">${p.cliente}</td>
+                    <td style="font-size: 0.75rem;">${p.proyecto}</td>
+                    <td>${p.lider}</td>
+                    <td style="text-align: center;">${getBadge(p.adopcionMO)}</td>
+                    <td style="text-align: center;">${getBadge(p.adopcionAuto)}</td>
+                    <td style="text-align: center;">${getBadge(p.adopcionPerf)}</td>
+                    <td style="text-align: center;">${getBadge(p.adopcionDevOps)}</td>
+                    <td style="text-align: center;">${getBadge(p.adopcionTDM)}</td>
+                    <td>${p.herramienta}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function getBadge(status) {
+            let className = '';
+            if (status === 'Completa') className = 'badge-completa';
+            else if (status === 'Parcial') className = 'badge-parcial';
+            else className = 'badge-sin';
+            return `<span class="badge ${className}">${status}</span>`;
+        }
+
+        function actualizarVistaTracks() {
+            const stats = calcularEstadisticas();
+            const container = document.getElementById('tracksContainer');
+            container.innerHTML = '';
+
+            const tracks = [
+                { key: 'modeloOperativo', name: 'Modelo Operativo QA', implField: 'modeloOperativo', adopField: 'adopcionMO' },
+                { key: 'automatizacion', name: 'Automatización', implField: 'automatizacion', adopField: 'adopcionAuto' },
+                { key: 'performance', name: 'Performance Testing', implField: 'performance', adopField: 'adopcionPerf' },
+                { key: 'devops', name: 'DevOps', implField: 'devops', adopField: 'adopcionDevOps' },
+                { key: 'tdm', name: 'TDM (Test Data Management)', implField: 'tdm', adopField: 'adopcionTDM' }
+            ];
+
+            tracks.forEach(track => {
+                const trackData = stats[track.key];
+                const total = stats.total;
+
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <h3 style="margin-bottom: 1rem; font-size: 1.25rem;">${track.name}</h3>
+                    <div class="track-grid">
+                        <div class="track-stat" style="background: #d1fae5;" onclick="showModal('${track.name} - Implementado', '${track.implField}', 'Implementado')">
+                            <div class="track-stat-value" style="color: #065f46;">${trackData.implementado}</div>
+                            <div class="track-stat-label">Implementado</div>
+                            <div class="track-stat-percent">${total > 0 ? Math.round((trackData.implementado/total)*100) : 0}%</div>
+                        </div>
+                        <div class="track-stat" style="background: #dbeafe;" onclick="showModal('${track.name} - En Implementación', '${track.implField}', 'En Implementación')">
+                            <div class="track-stat-value" style="color: #1e40af;">${trackData.enImplementacion}</div>
+                            <div class="track-stat-label">En Implementación</div>
+                            <div class="track-stat-percent">${total > 0 ? Math.round((trackData.enImplementacion/total)*100) : 0}%</div>
+                        </div>
+                        <div class="track-stat" style="background: #f3f4f6;" onclick="showModal('${track.name} - No Implementado', '${track.implField}', 'No Implementado')">
+                            <div class="track-stat-value" style="color: #374151;">${trackData.noImplementado}</div>
+                            <div class="track-stat-label">No Implementado</div>
+                            <div class="track-stat-percent">${total > 0 ? Math.round((trackData.noImplementado/total)*100) : 0}%</div>
+                        </div>
+                        <div class="track-stat" style="background: #d1fae5; border: 2px solid #10b981;" onclick="showModal('${track.name} - Adopción Completa', '${track.adopField}', 'Completa')">
+                            <div class="track-stat-value" style="color: #047857;">${trackData.adopcionCompleta}</div>
+                            <div class="track-stat-label" style="font-weight: 600;">Adopción Completa</div>
+                            <div class="track-stat-percent">${total > 0 ? Math.round((trackData.adopcionCompleta/total)*100) : 0}%</div>
+                        </div>
+                        <div class="track-stat" style="background: #fef3c7;" onclick="showModal('${track.name} - Adopción Parcial', '${track.adopField}', 'Parcial')">
+                            <div class="track-stat-value" style="color: #d97706;">${trackData.adopcionParcial}</div>
+                            <div class="track-stat-label">Adopción Parcial</div>
+                            <div class="track-stat-percent">${total > 0 ? Math.round((trackData.adopcionParcial/total)*100) : 0}%</div>
+                        </div>
+                        <div class="track-stat" style="background: #fee2e2;" onclick="showModal('${track.name} - Sin Adopción', '${track.adopField}', 'Sin Adopción')">
+                            <div class="track-stat-value" style="color: #dc2626;">${trackData.sinAdopcion}</div>
+                            <div class="track-stat-label">Sin Adopción</div>
+                            <div class="track-stat-percent">${total > 0 ? Math.round((trackData.sinAdopcion/total)*100) : 0}%</div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function actualizarVistaSinImplementacion() {
+            const stats = calcularEstadisticas();
+            const sinImpl = stats.proyectosSinImplementacion;
+
+            document.getElementById('badgeCounter').textContent = sinImpl.length;
+            document.getElementById('badgeCounter').classList.toggle('hidden', sinImpl.length === 0);
+
+            if (chartComparativa) chartComparativa.destroy();
+            const ctxComp = document.getElementById('chartComparativa').getContext('2d');
+            chartComparativa = new Chart(ctxComp, {
+                type: 'pie',
+                data: {
+                    labels: ['Con al menos 1 implementación', 'Sin ninguna implementación'],
+                    datasets: [{
+                        data: [stats.total - sinImpl.length, sinImpl.length],
+                        backgroundColor: ['#10b981', '#ef4444']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            const alertDiv = document.getElementById('alertSinImpl');
+            if (sinImpl.length > 0) {
+                alertDiv.classList.remove('hidden');
+                document.getElementById('alertTitle').textContent = `⚠️ Atención: ${sinImpl.length} proyecto${sinImpl.length !== 1 ? 's' : ''} sin ninguna implementación`;
+                document.getElementById('alertText').textContent = 'Los siguientes proyectos no tienen implementado ningún Track (Modelo Operativo, Automatización, Performance, DevOps ni TDM)';
+            } else {
+                alertDiv.classList.add('hidden');
+            }
+
+            document.getElementById('countSinImpl').textContent = `(${sinImpl.length})`;
+
+            const container = document.getElementById('tablaSinImplContainer');
+            if (sinImpl.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">✅</div>
+                        <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem;">¡Excelente!</h3>
+                        <p style="color: #6b7280;">Todos los proyectos tienen al menos un Track implementado</p>
+                    </div>
+                `;
+            } else {
+                let html = '<div class="overflow-x-auto"><table><thead style="background: #fef2f2;"><tr>';
+                html += '<th style="color: #7f1d1d;">#</th>';
+                html += '<th style="color: #7f1d1d;">Cliente</th>';
+                html += '<th style="color: #7f1d1d;">Proyecto</th>';
+                html += '<th style="color: #7f1d1d;">Líder de Servicio</th>';
+                html += '<th style="color: #7f1d1d;">Herramienta</th>';
+                html += '<th style="color: #7f1d1d;">Servicio</th>';
+                html += '</tr></thead><tbody>';
+
+                sinImpl.forEach((p, i) => {
+                    const bg = i % 2 === 0 ? 'white' : '#fef2f2';
+                    html += `<tr style="background: ${bg};">`;
+                    html += `<td style="font-weight: 600; color: #6b7280;">${i + 1}</td>`;
+                    html += `<td style="font-weight: 600; color: #1f2937;">${p.cliente}</td>`;
+                    html += `<td style="font-size: 0.75rem;">${p.proyecto}</td>`;
+                    html += `<td>${p.lider}</td>`;
+                    html += `<td><span style="background: #f3f4f6; color: #374151; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem;">${p.herramienta}</span></td>`;
+                    html += `<td style="font-size: 0.75rem; color: #6b7280;">${p.servicio || '-'}</td>`;
+                    html += '</tr>';
+                });
+
+                html += '</tbody></table></div>';
+                container.innerHTML = html;
+            }
+
+            const statsContainer = document.getElementById('statsLideresContainer');
+            if (sinImpl.length > 0) {
+                statsContainer.classList.remove('hidden');
+                const lideresStats = {};
+                sinImpl.forEach(p => {
+                    lideresStats[p.lider] = (lideresStats[p.lider] || 0) + 1;
+                });
+
+                const grid = document.getElementById('statsLideresGrid');
+                grid.innerHTML = '';
+                Object.entries(lideresStats).forEach(([lider, count]) => {
+                    const div = document.createElement('div');
+                    div.style.cssText = 'border: 1px solid #fecaca; background: #fef2f2; border-radius: 0.5rem; padding: 1rem; text-align: center;';
+                    div.innerHTML = `
+                        <div style="font-size: 1.875rem; font-weight: bold; color: #dc2626;">${count}</div>
+                        <div style="font-size: 0.875rem; color: #374151; margin-top: 0.25rem;">${lider}</div>
+                    `;
+                    grid.appendChild(div);
+                });
+            } else {
+                statsContainer.classList.add('hidden');
+            }
+        }
+
+        function cambiarVista(vista) {
+            document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden'));
+            document.querySelectorAll('[data-view]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            document.querySelector(`[data-view="${vista}"]`).classList.add('active');
+
+            const viewMap = {
+                general: 'vistaGeneral',
+                tabla: 'vistaTabla',
+                tracks: 'vistaTracks',
+                sinImplementacion: 'vistaSinImplementacion'
+            };
+
+            document.getElementById(viewMap[vista]).classList.remove('hidden');
+        }
+
+        function showModal(title, field, value) {
+            const proyectos = proyectosFiltrados.filter(p => p[field] === value);
+            
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalCount').textContent = proyectos.length;
+
+            const container = document.getElementById('modalProyectos');
+            if (proyectos.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 2rem;">No hay proyectos en esta categoría</p>';
+            } else {
+                container.innerHTML = proyectos.map(p => `
+                    <div class="project-card">
+                        <div class="project-client">${p.cliente}</div>
+                        <div class="project-name">${p.proyecto}</div>
+                        <div class="project-footer">
+                            <span class="project-leader">${p.lider}</span>
+                            <span class="project-tool">${p.herramienta}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        function abrirFormularioProyecto() {
+            document.getElementById('formProyecto').reset();
+            document.getElementById('divOtraHerramienta').style.display = 'none';
+            document.getElementById('inputOtraHerramienta').value = '';
+            document.getElementById('inputOtraHerramienta').removeAttribute('required');
+            document.getElementById('divOtroLider').style.display = 'none';
+            document.getElementById('inputOtroLider').value = '';
+            document.getElementById('inputOtroLider').removeAttribute('required');
+            document.getElementById('modalFormulario').classList.add('active');
+        }
+
+        function cerrarFormularioProyecto() {
+            document.getElementById('modalFormulario').classList.remove('active');
+        }
+
+        function toggleOtroLider() {
+            const selectLider = document.getElementById('inputLider');
+            const divOtro = document.getElementById('divOtroLider');
+            const inputOtro = document.getElementById('inputOtroLider');
+
+            if (selectLider.value === 'Otro') {
+                divOtro.style.display = 'block';
+                inputOtro.setAttribute('required', 'required');
+            } else {
+                divOtro.style.display = 'none';
+                inputOtro.removeAttribute('required');
+                inputOtro.value = '';
+            }
+        }
+
+        function toggleOtroLiderEdit() {
+            const selectLider = document.getElementById('editLider');
+            const divOtro = document.getElementById('divOtroLiderEdit');
+            const inputOtro = document.getElementById('editOtroLider');
+
+            if (selectLider.value === 'Otro') {
+                divOtro.style.display = 'block';
+            } else {
+                divOtro.style.display = 'none';
+                inputOtro.value = '';
+            }
+        }
+
+        function toggleOtraHerramienta() {
+            const selectHerramienta = document.getElementById('inputHerramienta');
+            const divOtra = document.getElementById('divOtraHerramienta');
+            const inputOtra = document.getElementById('inputOtraHerramienta');
+
+            if (selectHerramienta.value === 'Otra') {
+                divOtra.style.display = 'block';
+                inputOtra.setAttribute('required', 'required');
+            } else {
+                divOtra.style.display = 'none';
+                inputOtra.removeAttribute('required');
+                inputOtra.value = '';
+            }
+        }
+
+        function toggleOtraHerramientaEdit() {
+            const selectHerramienta = document.getElementById('editHerramienta');
+            const divOtra = document.getElementById('divOtraHerramientaEdit');
+            const inputOtra = document.getElementById('editOtraHerramienta');
+
+            if (selectHerramienta.value === 'Otra') {
+                divOtra.style.display = 'block';
+            } else {
+                divOtra.style.display = 'none';
+                inputOtra.value = '';
+            }
+        }
+
+        // Funciones de Edición
+        function abrirFormularioEdicion() {
+            const select = document.getElementById('selectProyectoEditar');
+            select.innerHTML = '<option value="">Seleccionar proyecto...</option>';
+            
+            proyectos.forEach(p => {
+                const option = document.createElement('option');
+                option.value = p.id;
+                option.textContent = `${p.cliente} - ${p.proyecto}`;
+                select.appendChild(option);
+            });
+
+            document.getElementById('editCliente').textContent = '-';
+            document.getElementById('editProyecto').textContent = '-';
+            document.getElementById('editLider').value = '';
+            document.getElementById('modalEdicion').classList.add('active');
+        }
+
+        function cerrarFormularioEdicion() {
+            document.getElementById('modalEdicion').classList.remove('active');
+        }
+
+        function cargarDatosProyecto() {
+            const proyectoId = parseInt(document.getElementById('selectProyectoEditar').value);
+            if (!proyectoId) return;
+
+            const proyecto = proyectos.find(p => p.id === proyectoId);
+            if (!proyecto) return;
+
+            document.getElementById('editCliente').textContent = proyecto.cliente;
+            document.getElementById('editProyecto').textContent = proyecto.proyecto;
+            
+            // Cargar líder
+            const lideresStandard = ['Ariana Infante', 'Pablo Lagos', 'Camilo Villavicencio', 'Luis Silva L.', 'David Lorca', 'Denisse Basualto', 'Gerardo Reyes', 'Hector Mancilla', 'Marcia Donoso', 'Alvaro Sepulveda'];
+            if (lideresStandard.includes(proyecto.lider)) {
+                document.getElementById('editLider').value = proyecto.lider;
+                document.getElementById('divOtroLiderEdit').style.display = 'none';
+            } else {
+                document.getElementById('editLider').value = 'Otro';
+                document.getElementById('divOtroLiderEdit').style.display = 'block';
+                document.getElementById('editOtroLider').value = proyecto.lider;
+            }
+
+            document.getElementById('editAdopcionMO').value = proyecto.adopcionMO;
+            document.getElementById('editAdopcionAuto').value = proyecto.adopcionAuto;
+            document.getElementById('editAdopcionPerf').value = proyecto.adopcionPerf;
+            document.getElementById('editAdopcionDevOps').value = proyecto.adopcionDevOps;
+            document.getElementById('editAdopcionTDM').value = proyecto.adopcionTDM;
+
+            const herramientasStandard = ['Jira', 'Xray', 'QTest', 'Azure', 'Octane', 'Zephyr'];
+            if (herramientasStandard.includes(proyecto.herramienta)) {
+                document.getElementById('editHerramienta').value = proyecto.herramienta;
+                document.getElementById('divOtraHerramientaEdit').style.display = 'none';
+            } else {
+                document.getElementById('editHerramienta').value = 'Otra';
+                document.getElementById('divOtraHerramientaEdit').style.display = 'block';
+                document.getElementById('editOtraHerramienta').value = proyecto.herramienta;
+            }
+        }
+
+        function guardarEdicionProyecto() {
+            const proyectoId = parseInt(document.getElementById('selectProyectoEditar').value);
+            if (!proyectoId) {
+                alert('⚠️ Por favor selecciona un proyecto');
+                return;
+            }
+
+            const proyecto = proyectos.find(p => p.id === proyectoId);
+            if (!proyecto) return;
+
+            function determinarImplementacion(adopcion) {
+                if (adopcion === 'Completa' || adopcion === 'Parcial') {
+                    return 'Implementado';
+                }
+                return 'No Implementado';
+            }
+
+            const adopcionMO = document.getElementById('editAdopcionMO').value;
+            const adopcionAuto = document.getElementById('editAdopcionAuto').value;
+            const adopcionPerf = document.getElementById('editAdopcionPerf').value;
+            const adopcionDevOps = document.getElementById('editAdopcionDevOps').value;
+            const adopcionTDM = document.getElementById('editAdopcionTDM').value;
+
+            // Determinar herramienta
+            let herramienta = document.getElementById('editHerramienta').value;
+            if (herramienta === 'Otra') {
+                herramienta = document.getElementById('editOtraHerramienta').value.trim();
+                if (!herramienta) {
+                    alert('⚠️ Por favor especifica la herramienta');
+                    return;
+                }
+            }
+
+            // Determinar líder
+            let lider = document.getElementById('editLider').value;
+            if (lider === 'Otro') {
+                lider = document.getElementById('editOtroLider').value.trim();
+                if (!lider) {
+                    alert('⚠️ Por favor especifica el líder');
+                    return;
+                }
+            }
+
+            proyecto.lider = lider;
+            proyecto.modeloOperativo = determinarImplementacion(adopcionMO);
+            proyecto.adopcionMO = adopcionMO;
+            proyecto.automatizacion = determinarImplementacion(adopcionAuto);
+            proyecto.adopcionAuto = adopcionAuto;
+            proyecto.performance = determinarImplementacion(adopcionPerf);
+            proyecto.adopcionPerf = adopcionPerf;
+            proyecto.devops = determinarImplementacion(adopcionDevOps);
+            proyecto.adopcionDevOps = adopcionDevOps;
+            proyecto.tdm = determinarImplementacion(adopcionTDM);
+            proyecto.adopcionTDM = adopcionTDM;
+            proyecto.herramienta = herramienta;
+
+            proyectosFiltrados = [...proyectos];
+            actualizarFiltrosConNuevosDatos();
+            actualizarDashboard();
+            cerrarFormularioEdicion();
+
+            alert('✅ Proyecto actualizado exitosamente');
+        }
+
+        // Funciones de Eliminación
+        function abrirFormularioEliminacion() {
+            const select = document.getElementById('selectProyectoEliminar');
+            select.innerHTML = '<option value="">Seleccionar proyecto...</option>';
+            
+            proyectos.forEach(p => {
+                const option = document.createElement('option');
+                option.value = p.id;
+                option.textContent = `${p.cliente} - ${p.proyecto}`;
+                select.appendChild(option);
+            });
+
+            document.getElementById('detallesEliminacion').style.display = 'none';
+            document.getElementById('btnConfirmarEliminar').disabled = true;
+            document.getElementById('modalEliminacion').classList.add('active');
+        }
+
+        function cerrarFormularioEliminacion() {
+            document.getElementById('modalEliminacion').classList.remove('active');
+        }
+
+        function mostrarDetallesEliminacion() {
+            const proyectoId = parseInt(document.getElementById('selectProyectoEliminar').value);
+            const detallesDiv = document.getElementById('detallesEliminacion');
+            const btnConfirmar = document.getElementById('btnConfirmarEliminar');
+
+            if (!proyectoId) {
+                detallesDiv.style.display = 'none';
+                btnConfirmar.disabled = true;
+                return;
+            }
+
+            const proyecto = proyectos.find(p => p.id === proyectoId);
+            if (!proyecto) return;
+
+            document.getElementById('delCliente').textContent = proyecto.cliente;
+            document.getElementById('delProyecto').textContent = proyecto.proyecto;
+            document.getElementById('delLider').textContent = proyecto.lider;
+
+            detallesDiv.style.display = 'block';
+            btnConfirmar.disabled = false;
+        }
+
+        function confirmarEliminacion() {
+            const proyectoId = parseInt(document.getElementById('selectProyectoEliminar').value);
+            if (!proyectoId) return;
+
+            const proyecto = proyectos.find(p => p.id === proyectoId);
+            if (!proyecto) return;
+
+            const confirmar = confirm(`¿Estás seguro de eliminar el proyecto?\n\nCliente: ${proyecto.cliente}\nProyecto: ${proyecto.proyecto}\n\nEsta acción no se puede deshacer.`);
+            
+            if (confirmar) {
+                const index = proyectos.findIndex(p => p.id === proyectoId);
+                if (index > -1) {
+                    proyectos.splice(index, 1);
+                    proyectosFiltrados = [...proyectos];
+                    
+                    actualizarDashboard();
+                    cerrarFormularioEliminacion();
+                    
+                    alert('✅ Proyecto eliminado exitosamente');
+                }
+            }
+        }
+
+        function guardarProyecto() {
+            const form = document.getElementById('formProyecto');
+            
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            // Determinar el estado de implementación basado en la adopción
+            function determinarImplementacion(adopcion) {
+                if (adopcion === 'Completa' || adopcion === 'Parcial') {
+                    return 'Implementado';
+                }
+                return 'No Implementado';
+            }
+
+            const adopcionMO = document.getElementById('inputAdopcionMO').value;
+            const adopcionAuto = document.getElementById('inputAdopcionAuto').value;
+            const adopcionPerf = document.getElementById('inputAdopcionPerf').value;
+            const adopcionDevOps = document.getElementById('inputAdopcionDevOps').value;
+            const adopcionTDM = document.getElementById('inputAdopcionTDM').value;
+
+            // Determinar la herramienta seleccionada
+            let herramienta = document.getElementById('inputHerramienta').value;
+            if (herramienta === 'Otra') {
+                herramienta = document.getElementById('inputOtraHerramienta').value.trim();
+            }
+
+            // Determinar el líder seleccionado
+            let lider = document.getElementById('inputLider').value;
+            if (lider === 'Otro') {
+                lider = document.getElementById('inputOtroLider').value.trim();
+            }
+
+            const nuevoProyecto = {
+                id: proyectos.length + 1,
+                cliente: document.getElementById('inputCliente').value.trim().toUpperCase(),
+                proyecto: document.getElementById('inputProyecto').value.trim(),
+                lider: lider,
+                modeloOperativo: determinarImplementacion(adopcionMO),
+                adopcionMO: adopcionMO,
+                automatizacion: determinarImplementacion(adopcionAuto),
+                adopcionAuto: adopcionAuto,
+                performance: determinarImplementacion(adopcionPerf),
+                adopcionPerf: adopcionPerf,
+                devops: determinarImplementacion(adopcionDevOps),
+                adopcionDevOps: adopcionDevOps,
+                tdm: determinarImplementacion(adopcionTDM),
+                adopcionTDM: adopcionTDM,
+                herramienta: herramienta,
+                servicio: ''
+            };
+
+            proyectos.push(nuevoProyecto);
+            proyectosFiltrados = [...proyectos];
+
+            actualizarFiltrosConNuevosDatos();
+            actualizarDashboard();
+            cerrarFormularioProyecto();
+
+            alert('✅ Proyecto creado exitosamente');
+        }
+
+        function actualizarFiltrosConNuevosDatos() {
+            const selectCliente = document.getElementById('filterCliente');
+            const selectLider = document.getElementById('filterLider');
+            const selectProyecto = document.getElementById('filterProyecto');
+
+            const clientesActuales = Array.from(selectCliente.options).slice(1).map(o => o.value);
+            const lideresActuales = Array.from(selectLider.options).slice(1).map(o => o.value);
+            const proyectosActuales = Array.from(selectProyecto.options).slice(1).map(o => o.value);
+
+            const clientes = [...new Set(proyectos.map(p => p.cliente))].sort();
+            const lideres = [...new Set(proyectos.map(p => p.lider))].sort();
+
+            clientes.forEach(c => {
+                if (!clientesActuales.includes(c)) {
+                    const option = document.createElement('option');
+                    option.value = c;
+                    option.textContent = c;
+                    selectCliente.appendChild(option);
+                }
+            });
+
+            lideres.forEach(l => {
+                if (!lideresActuales.includes(l)) {
+                    const option = document.createElement('option');
+                    option.value = l;
+                    option.textContent = l;
+                    selectLider.appendChild(option);
+                }
+            });
+
+            proyectos.forEach(p => {
+                if (!proyectosActuales.includes(p.proyecto)) {
+                    const option = document.createElement('option');
+                    option.value = p.proyecto;
+                    option.textContent = p.proyecto;
+                    selectProyecto.appendChild(option);
+                }
+            });
+        }
+    </script>
+</body>
